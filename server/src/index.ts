@@ -10,22 +10,10 @@ import modelsRouter from "./routes/models";
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 
-const allowedOrigins = (process.env.FRONTEND_ORIGIN ?? "http://localhost:3000")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
-      }
-    },
-  })
-);
+// No user data or session/cookie auth in this app, and the real secrets
+// (Serper/OpenRouter keys) never leave the server, so it's safe to accept
+// requests from any origin rather than maintaining an allow-list.
+app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/healthz", (_req, res) => {
@@ -38,10 +26,6 @@ app.use("/api/discord", discordRouter);
 app.use("/api/models", modelsRouter);
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  if (err.message?.startsWith("Origin ") && err.message.endsWith("not allowed by CORS")) {
-    res.status(403).json({ error: err.message });
-    return;
-  }
   console.error(err);
   res.status(500).json({ error: "Internal server error" });
 });

@@ -73,8 +73,11 @@ Fill in `server/.env`:
 |---|---|---|
 | `SERPER_API_KEY` | Yes | API key from [serper.dev](https://serper.dev). Used for all search: resolving official websites, contact/address lookups, and competitor discovery. |
 | `OPENROUTER_API_KEY` | Yes | API key from [openrouter.ai](https://openrouter.ai/keys). Used for all AI analysis. Any model listed on OpenRouter can be selected in-app. |
-| `FRONTEND_ORIGIN` | Yes | Comma-separated allowed CORS origins, e.g. `http://localhost:3000,https://your-app.vercel.app`. |
 | `PORT` | No | Defaults to `4000`. Render sets this automatically in production. |
+
+The API accepts requests from any origin (no CORS allow-list) since there's no user data
+or session/cookie auth involved — the Serper/OpenRouter secrets never leave the server
+regardless of who calls it.
 
 ```bash
 npm run dev
@@ -117,8 +120,7 @@ these values at review time.
    `server`**.
 3. Build command: `npm install && npm run build` (type-checks only; the app runs directly
    via `tsx`, no compiled output needed). Start command: `npm start`.
-4. Add environment variables: `SERPER_API_KEY`, `OPENROUTER_API_KEY`, `FRONTEND_ORIGIN`
-   (temporarily set to `http://localhost:3000`, updated in step 3 below).
+4. Add environment variables: `SERPER_API_KEY`, `OPENROUTER_API_KEY`.
 5. Deploy and note the resulting URL, e.g. `https://company-research-api.onrender.com`.
 
 ### Frontend → Vercel
@@ -127,9 +129,6 @@ these values at review time.
    repo root (do **not** point it at `server`).
 2. Add environment variable `NEXT_PUBLIC_API_BASE_URL` = the Render URL from above.
 3. Deploy and note the resulting URL, e.g. `https://company-research-assistant.vercel.app`.
-4. Go back to the Render service's environment variables and update `FRONTEND_ORIGIN` to
-   include the real Vercel URL (e.g. `https://company-research-assistant.vercel.app`), then
-   redeploy the Render service so CORS allows the live frontend.
 
 **Known limitation:** Render's free tier spins down after ~15 minutes of inactivity, so the
 first request after idling can take 30-50 seconds while it cold-starts — the UI will just
