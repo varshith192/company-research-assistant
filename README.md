@@ -22,17 +22,17 @@ This project is split into two services:
   site via search when only a name is given.
 - **Website crawler** — discovers and fetches Home/About/Products/Services/Solutions/
   Contact/Pricing pages, skips login/cart/duplicate pages, and extracts readable text for
-  the AI (`lib/crawler.ts`).
+  the AI (`server/lib/crawler.ts`).
 - **Serper.dev search integration** — resolves official websites, finds contact/address
-  details, and gathers competitor leads (`lib/serper.ts`).
+  details, and gathers competitor leads (`server/lib/serper.ts`).
 - **OpenRouter AI integration** — any model available on OpenRouter can be selected from
   the Settings dialog; used to generate the company summary, products/services, AI pain
-  points, and competitor suggestions (`lib/openrouter.ts`, `lib/research-pipeline.ts`).
+  points, and competitor suggestions (`server/lib/openrouter.ts`, `server/lib/research-pipeline.ts`).
 - **Competitor analysis** — competitors are identified by the AI model and their websites
   are verified/backfilled with a Serper lookup when missing.
 - **PDF report generation** — a polished PDF (company info, products, pain points,
   competitors) generated server-side with `@react-pdf/renderer` and downloadable with one
-  click (`lib/pdf.tsx`).
+  click (`server/lib/pdf.tsx`).
 - **Discord integration (bonus)** — a Settings tab to save a Discord Bot Token + Channel
   ID (plus applicant name/email). After each report, the app automatically posts the
   applicant/company details and the generated PDF to that Discord channel.
@@ -45,8 +45,11 @@ This project is split into two services:
 
 **Frontend** (`/`): Next.js 16 (App Router) + TypeScript, Tailwind CSS + shadcn/ui.
 
-**Backend** (`/server`): Express + TypeScript (run via `tsx`, no build step needed), reusing
-the same `lib/` modules as the frontend originally did:
+**Backend** (`/server`): Express + TypeScript (run via `tsx`, no build step needed). Its
+`server/lib/` holds the crawling/search/AI/PDF/Discord logic — physically separate from
+the frontend's `lib/` (Node module resolution requires shared code to live inside whichever
+service's own `node_modules` it needs, so this couldn't stay a single shared folder once
+split across two deployments):
 - **cheerio** — HTML parsing for the crawler (no headless browser, so it stays fast).
 - **@react-pdf/renderer** — PDF generation, pure JS (no Chromium dependency).
 - Native `fetch` for Serper.dev, OpenRouter, and the Discord REST API.
@@ -165,21 +168,25 @@ components/
   chat/                    Chat thread, progress stepper, report card
   settings/                Settings dialog (AI model + Discord config)
   ui/                      shadcn/ui primitives
-lib/                       Shared logic — imported by both the frontend and /server
-  serper.ts                Serper.dev search wrapper
-  crawler.ts               Website crawler
-  openrouter.ts            OpenRouter chat + model list wrapper
-  research-pipeline.ts     Orchestrates the end-to-end research flow
-  pdf.tsx                  PDF document + renderer
-  discord.ts               Discord REST delivery
+lib/                       Frontend-only helpers
+  types.ts                 Shared types (duplicated in server/lib/types.ts — see below)
   settings-context.tsx     Client-side settings (localStorage)
   api-base.ts              Resolves NEXT_PUBLIC_API_BASE_URL for frontend fetch calls
+  utils.ts                 shadcn/ui's cn() class-merging helper
 server/                    Express backend (deploys to Render)
   src/index.ts             Express app: CORS, JSON body parsing, route registration
   src/routes/research.ts   POST /api/research — streams NDJSON progress + final result
   src/routes/pdf.ts        POST /api/pdf — generates and returns the PDF report
   src/routes/discord.ts    POST /api/discord — sends the report to a Discord channel
   src/routes/models.ts     GET /api/models — proxies OpenRouter's model list (cached)
+  lib/                     Crawling/search/AI/PDF/Discord logic (server-only, see above)
+    serper.ts              Serper.dev search wrapper
+    crawler.ts             Website crawler
+    openrouter.ts          OpenRouter chat + model list wrapper
+    research-pipeline.ts   Orchestrates the end-to-end research flow
+    pdf.tsx                PDF document + renderer
+    discord.ts             Discord REST delivery
+    types.ts               Shared types (duplicated from lib/types.ts)
 ```
 
 ## Known Limitations
