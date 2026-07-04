@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { buildReportPdf } from "../../../lib/pdf";
-import type { ApplicantInfo, ResearchResult } from "../../../lib/types";
+import { buildReportPdf } from "../../lib/pdf";
+import type { ApplicantInfo, ResearchResult } from "../../lib/types";
 
 const router = Router();
 

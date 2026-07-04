@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { sendReportToDiscord } from "../../../lib/discord";
-import { buildReportPdf } from "../../../lib/pdf";
-import type { ApplicantInfo, ResearchResult } from "../../../lib/types";
+import { sendReportToDiscord } from "../../lib/discord";
+import { buildReportPdf } from "../../lib/pdf";
+import type { ApplicantInfo, ResearchResult } from "../../lib/types";
 
 interface DiscordRequestBody {
   botToken?: string;

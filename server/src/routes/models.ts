@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { listModels } from "../../../lib/openrouter";
-import type { ModelInfo } from "../../../lib/types";
+import { listModels } from "../../lib/openrouter";
+import type { ModelInfo } from "../../lib/types";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runResearch } from "../../../lib/research-pipeline";
-import type { ResearchRequestBody } from "../../../lib/types";
+import { runResearch } from "../../lib/research-pipeline";
+import type { ResearchRequestBody } from "../../lib/types";
 
 const router = Router();
 
