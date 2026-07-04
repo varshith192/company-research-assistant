@@ -37,6 +37,15 @@ app.use("/api/pdf", pdfRouter);
 app.use("/api/discord", discordRouter);
 app.use("/api/models", modelsRouter);
 
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  if (err.message?.startsWith("Origin ") && err.message.endsWith("not allowed by CORS")) {
+    res.status(403).json({ error: err.message });
+    return;
+  }
+  console.error(err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
 app.listen(PORT, () => {
   console.log(`Company Research Assistant API listening on port ${PORT}`);
 });
